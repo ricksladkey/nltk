@@ -2,7 +2,7 @@
 #
 # Author: Dan Garrette <dhgarrette@gmail.com>
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 from __future__ import print_function, division, unicode_literals
@@ -14,7 +14,7 @@ from nltk.internals import Counter
 from nltk.compat import string_types
 from nltk.corpus import brown
 from nltk.tag import UnigramTagger, BigramTagger, TrigramTagger, RegexpTagger
-from nltk.sem.logic import (LogicParser, Expression, Variable, VariableExpression,
+from nltk.sem.logic import (Expression, Variable, VariableExpression,
                             LambdaExpression, AbstractVariableExpression)
 from nltk.compat import python_2_unicode_compatible
 from nltk.sem import drt
@@ -36,7 +36,7 @@ class GlueFormula(object):
             indices = set()
 
         if isinstance(meaning, string_types):
-            self.meaning = LogicParser().parse(meaning)
+            self.meaning = Expression.fromstring(meaning)
         elif isinstance(meaning, Expression):
             self.meaning = meaning
         else:
@@ -515,20 +515,18 @@ class Glue(object):
         if add_reading:
             reading_list.append(glueformula.meaning)
 
-    def parse_to_compiled(self, sentence='a man sees Mary'):
+    def parse_to_compiled(self, sentence):
         gfls = [self.depgraph_to_glue(dg) for dg in self.dep_parse(sentence)]
         return [self.gfl_to_compiled(gfl) for gfl in gfls]
 
-    def dep_parse(self, sentence='every cat leaves'):
+    def dep_parse(self, sentence):
         #Lazy-initialize the depparser
         if self.depparser is None:
             from nltk.parse import MaltParser
             self.depparser = MaltParser(tagger=self.get_pos_tagger())
         if not self.depparser._trained:
             self.train_depparser()
-
-        tokens = sentence.split()
-        return [self.depparser.parse(tokens, verbose=self.verbose)]
+        return [self.depparser.parse(sentence, verbose=self.verbose)]
 
     def depgraph_to_glue(self, depgraph):
         return self.get_glue_dict().to_glueformula_list(depgraph)
@@ -581,7 +579,7 @@ class DrtGlueFormula(GlueFormula):
             indices = set()
 
         if isinstance(meaning, string_types):
-            self.meaning = drt.DrtParser().parse(meaning)
+            self.meaning = drt.DrtExpression.fromstring(meaning)
         elif isinstance(meaning, drt.AbstractDrs):
             self.meaning = meaning
         else:

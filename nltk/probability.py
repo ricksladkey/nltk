@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Natural Language Toolkit: Probability and Statistics
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com> (additions)
 #         Trevor Cohn <tacohn@cs.mu.oz.au> (additions)
@@ -161,7 +161,7 @@ class FreqDist(Counter):
 
         return _r_Nr
 
-    def _cumulative_frequencies(self, samples=None):
+    def _cumulative_frequencies(self, samples):
         """
         Return the cumulative frequencies of the specified samples.
         If no samples are specified, all counts are returned, starting
@@ -172,8 +172,6 @@ class FreqDist(Counter):
         :rtype: list(float)
         """
         cf = 0.0
-        if not samples:
-            samples = self.keys()
         for sample in samples:
             cf += self[sample]
             yield cf
@@ -315,7 +313,7 @@ class FreqDist(Counter):
 
         :rtype: string
         """
-        return '<FreqDist with %d samples and %d outcomes>' % (len(self), self.N())
+        return self.pprint()
 
     def pprint(self, maxlen=10):
         """
@@ -336,7 +334,7 @@ class FreqDist(Counter):
 
         :rtype: string
         """
-        return self.pprint()
+        return '<FreqDist with %d samples and %d outcomes>' % (len(self), self.N())
 
 
 ##//////////////////////////////////////////////////////

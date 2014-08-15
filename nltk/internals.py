@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Internal utility functions
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
 #         Nitin Madnani <nmadnani@ets.org>
@@ -142,7 +142,6 @@ def java(cmd, classpath=None, stdin=None, stdout=None, stderr=None,
         classpaths=[classpath]
     else:
         classpaths=list(classpath)
-    classpaths.append(NLTK_JAR)
     classpath=os.path.pathsep.join(classpaths)
 
     # Construct the full command string.
@@ -162,12 +161,6 @@ def java(cmd, classpath=None, stdin=None, stdout=None, stderr=None,
 
     return (stdout, stderr)
 
-#: The location of the NLTK jar file, which is used to communicate
-#: with external Java packages (such as Mallet) that do not have
-#: a sufficiently powerful native command-line interface.
-NLTK_JAR = os.path.abspath(os.path.join(os.path.split(__file__)[0],
-                                        'nltk.jar'))
-
 if 0:
     #config_java(options='-Xmx512m')
     # Write:
@@ -185,9 +178,9 @@ if 0:
 # Parsing
 ######################################################################
 
-class ParseError(ValueError):
+class ReadError(ValueError):
     """
-    Exception raised by parse_* functions when they fail.
+    Exception raised by read_* functions when they fail.
     :param position: The index in the input string where an error occurred.
     :param expected: What was expected when an error occurred.
     """
@@ -199,16 +192,16 @@ class ParseError(ValueError):
         return 'Expected %s at %s' % (self.expected, self.position)
 
 _STRING_START_RE = re.compile(r"[uU]?[rR]?(\"\"\"|\'\'\'|\"|\')")
-def parse_str(s, start_position):
+def read_str(s, start_position):
     """
     If a Python string literal begins at the specified position in the
     given string, then return a tuple ``(val, end_position)``
     containing the value of the string literal and the position where
-    it ends.  Otherwise, raise a ``ParseError``.
+    it ends.  Otherwise, raise a ``ReadError``.
     """
     # Read the open quote, and any modifiers.
     m = _STRING_START_RE.match(s, start_position)
-    if not m: raise ParseError('open quote', start_position)
+    if not m: raise ReadError('open quote', start_position)
     quotemark = m.group(1)
 
     # Find the close quote.
@@ -216,40 +209,40 @@ def parse_str(s, start_position):
     position = m.end()
     while True:
         match = _STRING_END_RE.search(s, position)
-        if not match: raise ParseError('close quote', position)
+        if not match: raise ReadError('close quote', position)
         if match.group(0) == '\\': position = match.end()+1
         else: break
 
-    # Parse it, using eval.  Strings with invalid escape sequences
+    # Process it, using eval.  Strings with invalid escape sequences
     # might raise ValueEerror.
     try:
         return eval(s[start_position:match.end()]), match.end()
     except ValueError as e:
-        raise ParseError('invalid string (%s)' % e)
+        raise ReadError('invalid string (%s)' % e)
 
-_PARSE_INT_RE = re.compile(r'-?\d+')
-def parse_int(s, start_position):
+_READ_INT_RE = re.compile(r'-?\d+')
+def read_int(s, start_position):
     """
     If an integer begins at the specified position in the given
     string, then return a tuple ``(val, end_position)`` containing the
     value of the integer and the position where it ends.  Otherwise,
-    raise a ``ParseError``.
+    raise a ``ReadError``.
     """
-    m = _PARSE_INT_RE.match(s, start_position)
-    if not m: raise ParseError('integer', start_position)
+    m = _READ_INT_RE.match(s, start_position)
+    if not m: raise ReadError('integer', start_position)
     return int(m.group()), m.end()
 
-_PARSE_NUMBER_VALUE = re.compile(r'-?(\d*)([.]?\d*)?')
-def parse_number(s, start_position):
+_READ_NUMBER_VALUE = re.compile(r'-?(\d*)([.]?\d*)?')
+def read_number(s, start_position):
     """
     If an integer or float begins at the specified position in the
     given string, then return a tuple ``(val, end_position)``
     containing the value of the number and the position where it ends.
-    Otherwise, raise a ``ParseError``.
+    Otherwise, raise a ``ReadError``.
     """
-    m = _PARSE_NUMBER_VALUE.match(s, start_position)
+    m = _READ_NUMBER_VALUE.match(s, start_position)
     if not m or not (m.group(1) or m.group(2)):
-        raise ParseError('number', start_position)
+        raise ReadError('number', start_position)
     if m.group(2): return float(m.group()), m.end()
     else: return int(m.group()), m.end()
 
