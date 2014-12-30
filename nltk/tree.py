@@ -685,6 +685,15 @@ class Tree(list):
         from nltk.draw.tree import draw_trees
         draw_trees(self)
 
+    def pretty_print(self, sentence=None, highlight=(), **viz_args):
+        """
+        Pretty-print this tree as ASCII or Unicode art.
+        For explanation of the arguments, see the documentation for
+        `nltk.treeprettyprinter.TreePrettyPrinter`.
+        """
+        from nltk.treeprettyprinter import TreePrettyPrinter
+        print(TreePrettyPrinter(self, sentence, highlight).text(**viz_args))
+        
     def __repr__(self):
         childstr = ", ".join(unicode_repr(c) for c in self)
         return '%s(%s, [%s])' % (type(self).__name__, unicode_repr(self._label), childstr)
@@ -715,8 +724,7 @@ class Tree(list):
             _canvas_frame.destroy_widget(widget)
             subprocess.call([find_binary('gs', binary_names=['gswin32c.exe', 'gswin64c.exe'], env_vars=['PATH'], verbose=False)] +
                             '-q -dEPSCrop -sDEVICE=png16m -r90 -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dSAFER -dBATCH -dNOPAUSE -sOutputFile={0:} {1:}'
-                            .format(out_path, in_path).split(),
-                            shell=True)
+                            .format(out_path, in_path).split())
             with open(out_path, 'rb') as sr:
                 res = sr.read()
             os.remove(in_path)

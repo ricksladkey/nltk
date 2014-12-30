@@ -5,7 +5,7 @@
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
-# [xx] this docstring isnt' up-to-date!
+# TODO this docstring isn't up-to-date!
 """
 NLTK corpus readers.  The modules in this package provide functions
 that can be used to read corpus files in a variety of formats.  These
@@ -16,8 +16,8 @@ of external corpora.
 Available Corpora
 =================
 
-Please see http://nltk.googlecode.com/svn/trunk/nltk_data/index.xml
-for a complete list.  Install corpora using nltk.download().
+Please see http://www.nltk.org/nltk_data/ for a complete list.
+Install corpora using nltk.download().
 
 Corpus Reader Functions
 =======================
@@ -202,6 +202,10 @@ udhr = LazyCorpusLoader(
     'udhr', UdhrCorpusReader)
 udhr2 = LazyCorpusLoader(
     'udhr2', PlaintextCorpusReader, r'.*\.txt', encoding='utf8')
+universal_treebanks = LazyCorpusLoader(
+    'universal_treebanks_v20', ConllCorpusReader, r'.*\.conll',
+    columntypes = ('ignore', 'words', 'ignore', 'ignore', 'pos',
+                   'ignore', 'ignore', 'ignore', 'ignore', 'ignore'))
 verbnet = LazyCorpusLoader(
     'verbnet', VerbnetCorpusReader, r'(?!\.).*\.xml')
 webtext = LazyCorpusLoader(
